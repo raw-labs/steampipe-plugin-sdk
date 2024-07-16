@@ -196,9 +196,9 @@ func (req *setRequest) readPageFromCacheWithRetries(ctx context.Context, pageIdx
 // 	)
 	baseRetryInterval := 1 * time.Millisecond
 	maxRetryInterval := 50 * time.Millisecond
-	totalElapsedTimeCap := 30 * time.Second
-	retryBackoff := retry.WithTimeout(
-		totalElapsedTimeCap,
+	maxDuration := 30 * time.Second
+	retryBackoff := retry.WithMaxDuration(
+		maxDuration,
 		retry.WithCappedDuration(maxRetryInterval, retry.NewExponential(baseRetryInterval)),
 	)
 
