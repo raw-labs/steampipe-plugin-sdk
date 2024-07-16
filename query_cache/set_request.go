@@ -189,10 +189,17 @@ func (req *setRequest) readPageFromCacheWithRetries(ctx context.Context, pageIdx
 	log.Printf("[TRACE] getRowsSince reading page %d key %s", pageIdx, pageKey)
 
 	var cachedResult = &sdkproto.QueryResult{}
-	var maxRetries uint64 = 10
-	retryBackoff := retry.WithMaxRetries(
-		maxRetries,
-		retry.NewExponential(10*time.Millisecond),
+// 	var maxRetries uint64 = 10
+// 	retryBackoff := retry.WithMaxRetries(
+// 		maxRetries,
+// 		retry.NewExponential(10*time.Millisecond),
+// 	)
+	baseRetryInterval := 1 * time.Millisecond
+	maxRetryInterval := 50 * time.Millisecond
+	totalElapsedTimeCap := 30 * time.Second
+	retryBackoff := retry.WithTimeout(
+		totalElapsedTimeCap,
+		retry.WithCappedDuration(maxRetryInterval, retry.NewExponential(baseRetryInterval)),
 	)
 
 	retries := 0
@@ -215,7 +222,7 @@ func (req *setRequest) readPageFromCacheWithRetries(ctx context.Context, pageIdx
 	})
 
 	if cacheErr != nil {
-		log.Printf("[WARN] getRowsSince failed to read page %d key %s after %d retries: %s (%s)", pageIdx, pageKey, maxRetries, cacheErr.Error(), req.CallId)
+		log.Printf("[WARN] getRowsSince failed to read page %d key %s after %d retries: %s (%s)", pageIdx, pageKey, retries, cacheErr.Error(), req.CallId)
 		return nil, cacheErr
 	}
 
