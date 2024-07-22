@@ -14,8 +14,6 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/gertd/go-pluralize"
-	"github.com/hashicorp/go-hclog"
 	"github.com/turbot/go-kit/helpers"
 	connectionmanager "github.com/turbot/steampipe-plugin-sdk/v5/connection"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc"
@@ -450,7 +448,9 @@ func (p *Plugin) executeForConnection(streamContext context.Context, req *proto.
 	cacheRequest := &query_cache.CacheRequest{
 		Table:   table.Name,
 		QualMap: cacheQualMap,
-		Columns: queryContext.Columns,
+		// Instead of all column names, put only those requested by the query.
+		// Includes also the "_ctx" special column, as the old code in queryData.getColumnNames() does.
+		Columns: append(queryContext.Columns, "_ctx"),
 		//Columns:        queryData.getColumnNames(), // all column names returned by the required hydrate functions
 		Limit:          limit,
 		ConnectionName: connectionName,

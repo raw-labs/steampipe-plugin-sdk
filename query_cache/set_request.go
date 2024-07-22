@@ -189,6 +189,7 @@ func (req *setRequest) readPageFromCacheWithRetries(ctx context.Context, pageIdx
 	log.Printf("[TRACE] getRowsSince reading page %d key %s", pageIdx, pageKey)
 
 	var cachedResult = &sdkproto.QueryResult{}
+	// Implement a far more aggressive retrial timeout, capped at maxRetryInterval, so that we don't lose anytime waiting!
 // 	var maxRetries uint64 = 10
 // 	retryBackoff := retry.WithMaxRetries(
 // 		maxRetries,
