@@ -448,9 +448,10 @@ func (p *Plugin) executeForConnection(streamContext context.Context, req *proto.
 	cacheQualMap := queryData.getCacheQualMap()
 	// build cache request
 	cacheRequest := &query_cache.CacheRequest{
-		Table:          table.Name,
-		QualMap:        cacheQualMap,
-		Columns:        queryData.getColumnNames(), // all column names returned by the required hydrate functions
+		Table:   table.Name,
+		QualMap: cacheQualMap,
+		Columns: queryContext.Columns,
+		//Columns:        queryData.getColumnNames(), // all column names returned by the required hydrate functions
 		Limit:          limit,
 		ConnectionName: connectionName,
 		TtlSeconds:     queryContext.CacheTTL,
